@@ -1,21 +1,22 @@
 # Library
 import os
-import numpy as np
 import pandas as pd
 
 # Main path declaration
 BASE_DIR = os.getcwd()
-data_path = os.path.join(BASE_DIR, "data", "raw", "Baza customer Telecom v2.csv")
+RAW_PATH = os.path.join(BASE_DIR, "data", "raw", "Baza customer Telecom v2.csv")
+PROCESSED_PATH = os.path.join(BASE_DIR, "data", "processed", "churn_cleaned.csv")
 
 # Load dataset
-df_churn_raw = pd.read_csv(data_path)
-
-## Make Copy
-df_churn = df_churn_raw.copy()
+def load_data(path):
+    print("Loading raw data...")
+    return pd.read_csv(path)
 
 # Cleaning data
 ## Clean column name
-df_churn.columns = df_churn.columns.str.strip()
+def clean_columns(df):
+    df.columns = df.columns.str.strip()
+    return df
 
 ## Checking missing value
 def handle_missing_values(df):
@@ -78,23 +79,28 @@ def handle_consistency(df):
 
     return df
 
-# Cleaning pipeline
-df_churn = handle_missing_values(df_churn)
-df_churn = handle_duplicates(df_churn)
-df_churn = handle_consistency(df_churn)
-
-# Create folder processed
-os.makedirs("data/processed", exist_ok=True)
-
 # Save cleaned data
-df_churn.to_csv("data/processed/churn_cleaned.csv", index=False)
+def save_data(df, path):
 
-print("Cleaned data saved")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    df.to_csv(path, index=False)
 
-# feature engineering
+    print("Cleaned data saved")
 
-# split data
+# Cleaning pipeline
+def main():
 
-# training logistic regresion
+    df_churn_raw = load_data(RAW_PATH)
 
-# save model
+    df_churn = df_churn_raw.copy()
+    df_churn = clean_columns(df_churn)
+
+    df_churn = handle_missing_values(df_churn)
+    df_churn = handle_duplicates(df_churn)
+    df_churn = handle_consistency(df_churn)
+
+    save_data(df_churn, PROCESSED_PATH)
+
+# Execute
+if __name__ == "__main__":
+    main()
