@@ -219,21 +219,26 @@ def evaluate_model(model, X_test_scaled, y_test, threshold = 0.475):
 
     return y_pred, y_prob
 
-def save_model(model, scaler, feature_columns):
+def save_model(model, scaler, feature_columns, threshold):
 
     print("Saving model...")
 
     model_dir = os.path.join(BASE_DIR, "models")
     os.makedirs(model_dir, exist_ok=True)
 
-    joblib.dump(model, MODEL_PATH)
+    model_path = os.path.join(model_dir, "churn_model.pkl")
+
+    joblib.dump(model, model_path)
     joblib.dump(scaler, os.path.join(model_dir, "scaler.pkl"))
     joblib.dump(list(feature_columns), os.path.join(model_dir, "feature_columns.pkl"))
+    joblib.dump(threshold, os.path.join(model_dir, "threshold.pkl"))
 
-    print("Model saved at:", MODEL_PATH)
+    print("Model saved at:", model_path)
 
 # Execute
 def main():
+
+    THRESHOLD = 0.475
 
     df_churn = load_data(PROCESSED_PATH)
 
@@ -250,9 +255,9 @@ def main():
 
     model = train_logistic_model(X_train_scaled, y_train)
 
-    evaluate_model(model, X_test_scaled, y_test)
+    evaluate_model(model, X_test_scaled, y_test, threshold = THRESHOLD)
 
-    save_model(model, scaler, X_train.columns)
+    save_model(model, scaler, X_train.columns, THRESHOLD)
 
 
 if __name__ == "__main__":
